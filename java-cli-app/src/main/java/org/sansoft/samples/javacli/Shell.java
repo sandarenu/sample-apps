@@ -5,9 +5,8 @@ import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
-import jline.ArgumentCompletor;
-import jline.ConsoleReader;
-import jline.SimpleCompletor;
+import jline.console.*;
+import jline.console.completer.*;
 
 /**
  * Sample application to show how jLine can be used.
@@ -26,10 +25,10 @@ public class Shell {
 		printWelcomeMessage();
 		ConsoleReader reader = new ConsoleReader();
 		reader.setBellEnabled(false);
-		List completors = new LinkedList();
+		List<Completer> completors = new LinkedList<Completer>();
 
-		completors.add(new SimpleCompletor(commandsList));
-		reader.addCompletor(new ArgumentCompletor(completors));
+		completors.add(new StringsCompleter(commandsList));
+		reader.addCompleter(new ArgumentCompleter(completors));
 
 		String line;
 		PrintWriter out = new PrintWriter(System.out);
