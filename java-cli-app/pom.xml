@@ -4,7 +4,7 @@
 
 	<groupId>org.sansoft.samples</groupId>
 	<artifactId>java-cli-app</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 	<packaging>jar</packaging>
 
 	<name>java-cli-app</name>
@@ -17,9 +17,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>jline</groupId>
+			<groupId>org.jline</groupId>
 			<artifactId>jline</artifactId>
-			<version>2.12</version>
+			<version>3.6.1</version>
 		</dependency>
 	</dependencies>
 

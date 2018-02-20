@@ -4,8 +4,8 @@ import java.io.PrintWriter
 
 import collection.JavaConversions._
 
-import jline.console._
-import jline.console.completer._
+import org.jline.reader._
+import org.jline.reader.impl.completer._
 
 object Shell {
   def main(args: Array[String]) = {
@@ -20,12 +20,13 @@ class Shell {
   def run(): Unit = {
     printWelcomeMessage()
 
-    val reader: ConsoleReader = new ConsoleReader()
-    reader.setBellEnabled(false)
+    val readerBuilder: LineReaderBuilder = LineReaderBuilder.builder()
 
     var completors: Seq[Completer] = Seq(new StringsCompleter(commandsList))
 
-    reader.addCompleter(new ArgumentCompleter(completors))
+    readerBuilder.completer(new ArgumentCompleter(completors))
+
+    val reader: LineReader = readerBuilder.build()
 
     var line: String = null
     var continue: Boolean = true
@@ -44,7 +45,7 @@ class Shell {
       else if (line == "action2") {
         println("You have selection action2")
       }
-      else if (line == "exit") {
+      else if (line == null || line == "exit") {
         println("Exiting application")
         continue = false
       }
@@ -67,7 +68,13 @@ class Shell {
     println("exit     - Exit the app")
   }
 
-  def readLine(reader: ConsoleReader, promtMessage: String): String = {
-    reader.readLine(promtMessage + "\nshell> ").trim()
+  def readLine(reader: LineReader, promtMessage: String): String = {
+    try {
+      reader.readLine(promtMessage + "\nshell> ").trim()
+    }
+    catch {
+      case e: UserInterruptException => null // e.g. ^C
+      case e: EndOfFileException => null // e.g. ^D
+    }
   }
 }

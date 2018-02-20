@@ -1,9 +1,9 @@
 name := "scala-cli-app"
 
-version := "0.0.1"
+version := "0.0.2"
 
-scalaVersion := "2.11.5"
+scalaVersion := "2.12.4"
 
 mainClass := Some("org.sansoft.samples.scalacli.Shell")
 
-libraryDependencies += "jline" % "jline" % "2.12"
+libraryDependencies += "org.jline" % "jline" % "3.6.1"
