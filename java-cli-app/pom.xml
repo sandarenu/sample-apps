@@ -21,6 +21,16 @@
 			<artifactId>jline</artifactId>
 			<version>3.6.1</version>
 		</dependency>
+		<dependency>
+			<groupId>org.fusesource.jansi</groupId>
+			<artifactId>jansi</artifactId>
+			<version>1.17</version> <!-- JLine 3.6.1 uses 1.17; needed to display ansi in Windows cmd -->
+		</dependency>
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna</artifactId>
+			<version>4.2.2</version> <!-- JLine 3.6.1 uses 4.2.2; needed to create a JLine system terminal -->
+		</dependency>
 	</dependencies>
 
 	<build>

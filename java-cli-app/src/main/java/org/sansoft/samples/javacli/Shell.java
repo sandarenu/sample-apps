@@ -1,12 +1,13 @@
 package org.sansoft.samples.javacli;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.jline.reader.*;
 import org.jline.reader.impl.completer.*;
+import org.jline.utils.*;
+import org.fusesource.jansi.*;
 
 /**
  * Sample application to show how jLine can be used.
@@ -22,6 +23,7 @@ public class Shell {
 	}
 
 	public void run() {
+		AnsiConsole.systemInstall(); // needed to support ansi on Windows cmd
 		printWelcomeMessage();
 		LineReaderBuilder readerBuilder = LineReaderBuilder.builder();
 		List<Completer> completors = new LinkedList<Completer>();
@@ -38,9 +40,19 @@ public class Shell {
 			if ("help".equals(line)) {
 				printHelp();
 			} else if ("action1".equals(line)) {
-				System.out.println("You have selection action1");
+				AttributedStringBuilder a = new AttributedStringBuilder()
+						.append("You have selected ")
+						.append("action1", AttributedStyle.BOLD.foreground(AttributedStyle.RED))
+						.append("!");
+
+				System.out.println(a.toAnsi());
 			} else if ("action2".equals(line)) {
-				System.out.println("You have selection action2");
+				AttributedStringBuilder a = new AttributedStringBuilder()
+						.append("You have selected ")
+						.append("action2", AttributedStyle.BOLD.foreground(AttributedStyle.RED))
+						.append("!");
+
+				System.out.println(a.toAnsi());
 			} else if ("exit".equals(line)) {
 				System.out.println("Exiting application");
 				return;
@@ -49,6 +61,8 @@ public class Shell {
 						.println("Invalid command, For assistance press TAB or type \"help\" then hit ENTER.");
 			}
 		}
+
+		AnsiConsole.systemUninstall();
 	}
 
 	private void printWelcomeMessage() {
