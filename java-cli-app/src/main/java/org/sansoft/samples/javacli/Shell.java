@@ -1,12 +1,13 @@
 package org.sansoft.samples.javacli;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
-import jline.console.*;
-import jline.console.completer.*;
+import org.jline.reader.*;
+import org.jline.reader.impl.completer.*;
+import org.jline.utils.*;
+import org.fusesource.jansi.*;
 
 /**
  * Sample application to show how jLine can be used.
@@ -21,14 +22,16 @@ public class Shell {
 		commandsList = new String[] { "help", "action1", "action2", "exit" };
 	}
 
-	public void run() throws IOException {
+	public void run() {
+		AnsiConsole.systemInstall(); // needed to support ansi on Windows cmd
 		printWelcomeMessage();
-		ConsoleReader reader = new ConsoleReader();
-		reader.setBellEnabled(false);
+		LineReaderBuilder readerBuilder = LineReaderBuilder.builder();
 		List<Completer> completors = new LinkedList<Completer>();
 
 		completors.add(new StringsCompleter(commandsList));
-		reader.addCompleter(new ArgumentCompleter(completors));
+		readerBuilder.completer(new ArgumentCompleter(completors));
+
+		LineReader reader = readerBuilder.build();
 
 		String line;
 		PrintWriter out = new PrintWriter(System.out);
@@ -37,9 +40,19 @@ public class Shell {
 			if ("help".equals(line)) {
 				printHelp();
 			} else if ("action1".equals(line)) {
-				System.out.println("You have selection action1");
+				AttributedStringBuilder a = new AttributedStringBuilder()
+						.append("You have selected ")
+						.append("action1", AttributedStyle.BOLD.foreground(AttributedStyle.RED))
+						.append("!");
+
+				System.out.println(a.toAnsi());
 			} else if ("action2".equals(line)) {
-				System.out.println("You have selection action2");
+				AttributedStringBuilder a = new AttributedStringBuilder()
+						.append("You have selected ")
+						.append("action2", AttributedStyle.BOLD.foreground(AttributedStyle.RED))
+						.append("!");
+
+				System.out.println(a.toAnsi());
 			} else if ("exit".equals(line)) {
 				System.out.println("Exiting application");
 				return;
@@ -47,8 +60,9 @@ public class Shell {
 				System.out
 						.println("Invalid command, For assistance press TAB or type \"help\" then hit ENTER.");
 			}
-			out.flush();
 		}
+
+		AnsiConsole.systemUninstall();
 	}
 
 	private void printWelcomeMessage() {
@@ -65,13 +79,22 @@ public class Shell {
 
 	}
 
-	private String readLine(ConsoleReader reader, String promtMessage)
-			throws IOException {
-		String line = reader.readLine(promtMessage + "\nshell> ");
-		return line.trim();
+	private String readLine(LineReader reader, String promtMessage) {
+		try {
+			String line = reader.readLine(promtMessage + "\nshell> ");
+			return line.trim();
+		}
+		catch (UserInterruptException e) {
+			// e.g. ^C
+			return null;
+		}
+		catch (EndOfFileException e) {
+			// e.g. ^D
+			return null;
+		}
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		Shell shell = new Shell();
 		shell.init();
 		shell.run();

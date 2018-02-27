@@ -2,10 +2,11 @@ package org.sansoft.samples.scalacli
 
 import java.io.PrintWriter
 
-import collection.JavaConversions._
+import org.fusesource.jansi.AnsiConsole
 
-import jline.console._
-import jline.console.completer._
+import org.jline.reader._
+import org.jline.reader.impl.completer._
+import org.jline.utils._
 
 object Shell {
   def main(args: Array[String]) = {
@@ -15,17 +16,20 @@ object Shell {
 }
 
 class Shell {
-  var commandsList: Seq[String] = Seq("help", "action1", "action2", "exit");
+  var commandsList: Seq[String] = Seq("help", "action1", "action2", "exit")
 
   def run(): Unit = {
+    AnsiConsole.systemInstall() // needed to support asni on Windows cmd
+
     printWelcomeMessage()
 
-    val reader: ConsoleReader = new ConsoleReader()
-    reader.setBellEnabled(false)
+    val readerBuilder: LineReaderBuilder = LineReaderBuilder.builder()
 
-    var completors: Seq[Completer] = Seq(new StringsCompleter(commandsList))
+    var completors: Seq[Completer] = Seq(new StringsCompleter(commandsList: _*))
 
-    reader.addCompleter(new ArgumentCompleter(completors))
+    readerBuilder.completer(new ArgumentCompleter(completors: _*))
+
+    val reader: LineReader = readerBuilder.build()
 
     var line: String = null
     var continue: Boolean = true
@@ -39,12 +43,22 @@ class Shell {
         printHelp()
       }
       else if (line == "action1") {
-        println("You have selection action1")
+        val a = new AttributedStringBuilder()
+          .append("You have selected ")
+          .append("action1", AttributedStyle.BOLD.foreground(AttributedStyle.RED))
+          .append("!")
+
+        println(a.toAnsi)
       }
       else if (line == "action2") {
-        println("You have selection action2")
+        val a = new AttributedStringBuilder()
+          .append("You have selected ")
+          .append("action2", AttributedStyle.BOLD.foreground(AttributedStyle.RED))
+          .append("!")
+
+        println(a.toAnsi)
       }
-      else if (line == "exit") {
+      else if (line == null || line == "exit") {
         println("Exiting application")
         continue = false
       }
@@ -54,6 +68,8 @@ class Shell {
 
       out.flush()
     }
+
+    AnsiConsole.systemUninstall()
   }
 
   def printWelcomeMessage(): Unit = {
@@ -67,7 +83,13 @@ class Shell {
     println("exit     - Exit the app")
   }
 
-  def readLine(reader: ConsoleReader, promtMessage: String): String = {
-    reader.readLine(promtMessage + "\nshell> ").trim()
+  def readLine(reader: LineReader, promtMessage: String): String = {
+    try {
+      reader.readLine(promtMessage + "\nshell> ").trim()
+    }
+    catch {
+      case e: UserInterruptException => null // e.g. ^C
+      case e: EndOfFileException => null // e.g. ^D
+    }
   }
 }

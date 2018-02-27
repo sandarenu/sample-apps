@@ -4,7 +4,7 @@
 
 	<groupId>org.sansoft.samples</groupId>
 	<artifactId>java-cli-app</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 	<packaging>jar</packaging>
 
 	<name>java-cli-app</name>
@@ -17,9 +17,19 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>jline</groupId>
+			<groupId>org.jline</groupId>
 			<artifactId>jline</artifactId>
-			<version>2.12</version>
+			<version>3.6.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.fusesource.jansi</groupId>
+			<artifactId>jansi</artifactId>
+			<version>1.17</version> <!-- JLine 3.6.1 uses 1.17; needed to display ansi in Windows cmd -->
+		</dependency>
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna</artifactId>
+			<version>4.2.2</version> <!-- JLine 3.6.1 uses 4.2.2; needed to create a JLine system terminal -->
 		</dependency>
 	</dependencies>
 
@@ -28,6 +38,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.7.0</version>
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
@@ -37,6 +48,30 @@
 						<phase>compile</phase>
 						<goals>
 							<goal>compile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.1.0</version>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>org.sansoft.samples.javacli.Shell</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<id>assemble-all</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
 						</goals>
 					</execution>
 				</executions>
